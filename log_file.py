@@ -47,7 +47,6 @@ def save_report(summary):
     data.to_csv('log_summary.csv')
 
 def main():
-    """runs all the function"""
     log_dir = 'logs'
     files = get_log_files(log_dir)
     
