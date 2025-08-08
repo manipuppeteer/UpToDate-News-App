@@ -1,0 +1,4 @@
+2025-08-01 10:15:32 INFO User 1234 logged in
+2025-08-01 10:16:10 ERROR Database timeout for user 1234
+2025-08-01 10:18:01 WARNING Disk usage at 85%
+2025-08-01 10:20:12 ERROR Database timeout for user 5678
