@@ -2,8 +2,10 @@ import customtkinter as ctk
 import tkinter as tk
 from PIL import Image
 import webbrowser
+import requests
+from io import BytesIO
 class NewsFrame(ctk.CTkFrame):
-    def __init__(self, master, headline, url, time):
+    def __init__(self, master, headline, url, imgurl, time):
         super().__init__(master)
         self.pack()
         # Configure grid weights for responsive layout
@@ -13,11 +15,12 @@ class NewsFrame(ctk.CTkFrame):
         self.rowconfigure(0, weight=0)     # Headline row - no extra space
         self.rowconfigure(1, weight=0)     # Time row - no extra space
         self.rowconfigure(2, weight=0)     # Button row - no extra space
-        self.create_widgets(headline, url, time)
+        self.create_widgets(headline, url, imgurl, time)
 
-    def create_widgets(self, headline, url, time):
+    def create_widgets(self, headline, url, imgurl, time):
         # Headline - top left, spans 2 columns for more width
-        self.label = ctk.CTkLabel(self, text=headline, font=("Arial", 16, "bold"))
+        self.label = ctk.CTkLabel(self, text=headline, font=("Arial", 16, "bold"), 
+                                 wraplength=400, justify="left")
         self.label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10,2), sticky="w")
 
         # Published time - below headline
@@ -25,7 +28,19 @@ class NewsFrame(ctk.CTkFrame):
         self.age.grid(row=1, column=0, columnspan=2, padx=10, pady=(0,8), sticky="w")
 
         # Image - right side, spans all rows
-        self.img = ctk.CTkImage(light_image=Image.open("photo.jpg"), size=(225, 150))
+        try:
+            # Try to load image from URL
+            if imgurl and imgurl.strip():
+                response = requests.get(imgurl, timeout=5)
+                img_data = Image.open(BytesIO(response.content))
+                self.img = ctk.CTkImage(light_image=img_data, size=(225, 150))
+            else:
+                # Fallback to default image
+                self.img = ctk.CTkImage(light_image=Image.open("photo.jpg"), size=(225, 150))
+        except:
+            # If URL fails, use default image
+            self.img = ctk.CTkImage(light_image=Image.open("photo.jpg"), size=(225, 150))
+        
         self.img_label = ctk.CTkLabel(self, image=self.img, text="")
         self.img_label.grid(row=0, column=2, rowspan=3, padx=10, pady=10, sticky="n")
 
@@ -59,7 +74,10 @@ tab5 = tabs.add("Sports News")
 tab6 = tabs.add("Entertainment News")
 tab7 = tabs.add("Technology News")
 tab8 = tabs.add("Health News")
-frame1 = NewsFrame(tab1, "Sample Headline", "http://example.com", "2023-10-01 12:00").pack(fill="both", expand=True)
-frame2 = NewsFrame(tab2, "Another Headline", "http://example.com/2", "2023-10-01 13:00").pack(fill="both", expand=True)
-frame3 = NewsFrame(tab3, "Third Headline", "http://example.com/3", "2023-10-01 14:00").pack(fill="both", expand=True)
+
+from newsapi import get_news
+articles = get_news()
+for article in articles:
+    frame = NewsFrame(tab1, article['title'], article['url'], article.get('urlToImage', ''), article['publishedAt'])
+    frame.pack(fill="both", expand=True)
 app.mainloop()
