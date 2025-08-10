@@ -2,7 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from PIL import Image
 import webbrowser
-import requests
+#import requests
 from io import BytesIO
 class NewsFrame(ctk.CTkFrame):
     def __init__(self, master, headline, url, imgurl, time):
