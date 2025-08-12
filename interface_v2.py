@@ -1,3 +1,5 @@
+# To do - create a search bar
+# To do - ensure that if one news item is in general, it doesnt appear in the rest of the columns
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image
