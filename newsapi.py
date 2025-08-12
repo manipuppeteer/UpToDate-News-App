@@ -1,13 +1,13 @@
 import requests
+API_KEY = '65a1067c0a4c410da9cc3b924e29f347'
 def get_news():
 
-    API_KEY = 'ecb9e858a7fb47a6aa7b33d668c1ba6e'
-
+   
     # Set up the endpoint and parameters
     url = 'https://newsapi.org/v2/top-headlines'
     params = {
-        'country': 'us',       # You can change to 'de' for Germany, etc.
-        'category': 'technology',
+             # You can change to 'de' for Germany, etc.
+        'category': 'general',
         'apiKey': API_KEY
     }
 
@@ -25,3 +25,19 @@ def get_news():
     # else:
     #     print("Failed to fetch news:", response.status_code)
 
+def get_news_category(category:str):
+   
+    # Set up the endpoint and parameters
+    url = 'https://newsapi.org/v2/top-headlines'
+    params = {
+              # You can change to 'de' for Germany, etc.
+        'category': category,
+        'apiKey': API_KEY
+    }
+
+    # Make the request
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        articles = data['articles']
+        return articles

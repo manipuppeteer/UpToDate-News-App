@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image
-import webbrowser, requests, threading, json, os
+import webbrowser, requests, json, os, time
 from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -9,11 +9,11 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 
-
-
-
 placeholder_pic = "photo.jpg"
+EXECUTOR = ThreadPoolExecutor(max_workers=6)  # Global executor for all image loads
 
+# Simple in-memory image byte cache to avoid re-downloading duplicates
+_IMAGE_CACHE = {}
 
 def fmt_time(iso_str: str) -> str:
     try:
@@ -65,7 +65,6 @@ def remove_favs(index: int) -> bool:
 def list_favs() -> list:
     return load_favorites()
 
-
 class NewsFrame(ctk.CTkFrame):
     def __init__(self, master, headline, url, imgurl, time_iso, source=""):
         super().__init__(master)
@@ -76,7 +75,6 @@ class NewsFrame(ctk.CTkFrame):
             "urlToImage" : imgurl,
             "publishedAt" : time_iso,
             "source" : source,
-
         }
 
         self.columnconfigure(0, weight=1)
@@ -102,32 +100,36 @@ class NewsFrame(ctk.CTkFrame):
         self.fav_button= ctk.CTkButton(self, text="Add to Favorites", command=self.add_to_favorites)
         self.fav_button.grid(row=2, column=1, padx=(10,5), pady=(0,10), sticky="ew" )
 
-        executor = ThreadPoolExecutor(max_workers=5)
-
         if imgurl and imgurl.strip():
-            executor.submit(self._load_image_async, imgurl)
+            EXECUTOR.submit(self._load_image_async, imgurl)
 
     def _load_image_async(self, imgurl: str):
         try:
-            # 1️⃣ Download in background
-            r = requests.get(imgurl, timeout=6)
-            r.raise_for_status()
-            im = Image.open(BytesIO(r.content))
+            if imgurl in _IMAGE_CACHE:
+                img_bytes = _IMAGE_CACHE[imgurl]
+            else:
+                headers = {"User-Agent": "Mozilla/5.0", "Referer": self.url or ""}
+                r = requests.get(imgurl, headers=headers, timeout=(3, 5))
+                r.raise_for_status()
+                img_bytes = r.content
+                _IMAGE_CACHE[imgurl] = img_bytes
 
-            # 2️⃣ Switch to main thread to create CTkImage & update UI
-            self.img_label.after(0, lambda: self._set_img_on_main(im))
+            # schedule image creation on main thread
+            self.img_label.after(0, lambda: self._create_image_on_main(img_bytes))
         except Exception as e:
             print("Image load failed:", e)
 
-    def _set_img_on_main(self, pil_img):
-        new_img = ctk.CTkImage(light_image=pil_img, size=(225, 150))
-        self.img = new_img
-        self.img_label.configure(image=self.img)
-
-
-    def _set_img(self, new_img):
-        self.img = new_img
-        self.img_label.configure(image=self.img)
+    def _create_image_on_main(self, img_bytes):
+        if not self.winfo_exists():
+            return  # widget destroyed
+        try:
+            im = Image.open(BytesIO(img_bytes))
+            im.thumbnail((225, 150), Image.LANCZOS)
+            new_img = ctk.CTkImage(light_image=im, size=(225, 150))
+            self.img = new_img
+            self.img_label.configure(image=self.img)
+        except Exception as e:
+            print("Image create failed:", e)
 
     def read_more(self):
         if self.url:
@@ -159,7 +161,6 @@ for name in [
     tab_frames[name] = sf
 
 def render_favorites():
-    # erst leeren
     frame = tab_frames["Favorites"]
     for w in frame.winfo_children():
         w.destroy()
@@ -188,17 +189,14 @@ def render_favorites():
                       command=lambda i=idx: (remove_favs(i), render_favorites()))\
             .grid(row=0, column=2, padx=6)
 
-# Beim Start einmal laden:
 render_favorites()
+
 def change_title(title:str):
-    '''remove source name from title'''
     return ''.join(title.split('-')[:-1])
 
-
 from newsapi import *
-categories = ['General', 'Business', 'Entertainment', 'General', 'Health', 'Science','Sports','Technology']
+categories = ['General', 'Business', 'Entertainment', 'Health', 'Science','Sports','Technology']
 
-import time
 start_time = time.time()
 running = True
 
@@ -208,11 +206,8 @@ def show_timer():
         print(f"\r⏱ {elapsed:.2f} seconds", end="")
         time.sleep(0.1)
 
-# Start timer thread
 def load_categories():
-  
-
-    for category in ['General']:
+    for category in categories:
         articles_category = get_news_category(category)
         for article in articles_category:
             frame = NewsFrame(
@@ -225,9 +220,5 @@ def load_categories():
             )
             frame.pack(fill="both", expand=True)
 
-    
-
-
-# Schedule the load to start *after* the mainloop begins
-app.after(0, load_categories)
+app.after(20, load_categories)
 app.mainloop()
