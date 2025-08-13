@@ -222,5 +222,5 @@ def load_categories():
             )
             frame.pack(fill="both", expand=True)
 
-app.after(20, load_categories)
+app.after(50, load_categories)
 app.mainloop()
