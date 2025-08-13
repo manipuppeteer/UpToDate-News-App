@@ -41,3 +41,20 @@ def get_news_category(category:str):
         data = response.json()
         articles = data['articles']
         return articles
+
+def search_news(word, category):
+    url = 'https://newsapi.org/v2/top-headlines'
+    params = {
+              # You can change to 'de' for Germany, etc.
+        'category': category,
+        'apiKey': API_KEY,
+        'q': word  # Search query
+    }
+
+    # Make the request
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        articles = data['articles']
+        return articles
+    

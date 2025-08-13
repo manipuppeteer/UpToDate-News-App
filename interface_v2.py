@@ -10,6 +10,8 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
+from newsapi import *
+from favorites import *
 
 placeholder_pic = "photo.jpg"
 EXECUTOR = ThreadPoolExecutor(max_workers=6)  # Global executor for all image loads
@@ -17,55 +19,6 @@ EXECUTOR = ThreadPoolExecutor(max_workers=6)  # Global executor for all image lo
 # Simple in-memory image byte cache to avoid re-downloading duplicates
 _IMAGE_CACHE = {}
 
-def fmt_time(iso_str: str) -> str:
-    try:
-        dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone(ZoneInfo("Europe/Berlin"))
-        return dt.strftime("%d.%m.%Y %H:%M")
-    except Exception:
-        return iso_str or ""
-
-def _favorites_path():
-    try:
-        home = Path.home()
-        path = home / ".news_app" / "favorites.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        return path
-    except Exception:
-        return Path(__file__).with_name("favorites.json")
-
-def ensure_favorites_file():
-    path = _favorites_path()
-    if not path.exists():
-        path.write_text("[]", encoding="UTF-8")
-
-def load_favorites():
-    ensure_favorites_file()
-    path = _favorites_path()
-    try:
-        return json.loads(path.read_text(encoding="UTF-8"))
-    except json.JSONDecodeError:
-        path.write_text("[]", encoding="UTF-8")
-        return []
-
-def save_favs(items: list):
-    path = _favorites_path()
-    path.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="UTF-8")
-
-def add_fav(item: dict):
-    favs = load_favorites()
-    favs.append(item)
-    save_favs(favs)
-
-def remove_favs(index: int) -> bool:
-    favs= load_favorites()
-    if 0 <= index < len(favs):
-        favs.pop(index)
-        save_favs(favs)
-        return True
-    return False
-
-def list_favs() -> list:
-    return load_favorites()
 
 class NewsFrame(ctk.CTkFrame):
     def __init__(self, master, headline, url, imgurl, time_iso, source=""):
@@ -151,16 +104,41 @@ class NewsFrame(ctk.CTkFrame):
 app = ctk.CTk()
 app.title("News Application")
 app.geometry("800x600")
+
+
+
 tabs = ctk.CTkTabview(app)
 tabs.pack(fill="both", expand=True)
+
+def filter_articles(word, category):
+    articles = search_news(word, category)
+    # Erase all widgets from a frame
+    for widget in tab_frames[f'{category}'].winfo_children():
+        widget.destroy()
+    for article in articles:
+        frame = NewsFrame(
+            tab_frames[f'{category}'],
+            change_title(article.get("title", "(ohne Titel)")),
+            article.get("url", ""),
+            article.get("urlToImage", ""),
+            article.get("publishedAt", ""),
+            source=(article.get("source") or {}).get("name", "")
+        )
+        frame.pack(fill="both", expand=True)
+
 tab_frames = {}
 for name in [
     'General', 'Favorites', 'Business', 'Entertainment', 'Health', 'Science','Sports','Technology'
 ]:
     tab = tabs.add(name)
+    search_var = ctk.StringVar()
+    search_entry = ctk.CTkEntry(tab, textvariable=search_var, placeholder_text="Search news...")
+    search_entry.pack(pady=10, padx=10, fill="x")
+    search_entry.bind("<Return>", lambda event, n=name, sv=search_var: filter_articles(sv.get(), n))
     sf = ctk.CTkScrollableFrame(tab)
     sf.pack(fill="both", expand=True, padx=6, pady=6)
     tab_frames[name] = sf
+
 
 def render_favorites():
     frame = tab_frames["Favorites"]
@@ -196,7 +174,7 @@ render_favorites()
 def change_title(title:str):
     return ''.join(title.split('-')[:-1])
 
-from newsapi import *
+
 categories = ['General', 'Business', 'Entertainment', 'Health', 'Science','Sports','Technology']
 
 start_time = time.time()
@@ -221,6 +199,20 @@ def load_categories():
                 source=(article.get("source") or {}).get("name", "")
             )
             frame.pack(fill="both", expand=True)
-
+def filter_articles(word, category):
+    articles = search_news(word, category)
+    # Erase all widgets from a frame
+    for widget in tab_frames[f'{category}'].winfo_children():
+        widget.destroy()
+    for article in articles:
+        frame = NewsFrame(
+            tab_frames[f'{category}'],
+            change_title(article.get("title", "(ohne Titel)")),
+            article.get("url", ""),
+            article.get("urlToImage", ""),
+            article.get("publishedAt", ""),
+            source=(article.get("source") or {}).get("name", "")
+        )
+        frame.pack(fill="both", expand=True)
 app.after(50, load_categories)
 app.mainloop()
