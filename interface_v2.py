@@ -40,7 +40,7 @@ class NewsFrame(ctk.CTkFrame):
                                  wraplength=420, justify = "left")
         self.label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10,2), sticky="w")
 
-        meta = f"Published: {fmt_time(time_iso)}"
+        meta = f"{fmt_time(time_iso)}"
         if source: meta += f"   -   {source}"
         self.age = ctk.CTkLabel(self, text=meta, font=("Arial", 10))
         self.age.grid(row=1, column=0, columnspan=2, padx=10, pady=(0,8), sticky="w")
@@ -110,29 +110,14 @@ app.geometry("800x600")
 tabs = ctk.CTkTabview(app)
 tabs.pack(fill="both", expand=True)
 
-def filter_articles(word, category):
-    articles = search_news(word, category)
-    # Erase all widgets from a frame
-    for widget in tab_frames[f'{category}'].winfo_children():
-        widget.destroy()
-    for article in articles:
-        frame = NewsFrame(
-            tab_frames[f'{category}'],
-            change_title(article.get("title", "(ohne Titel)")),
-            article.get("url", ""),
-            article.get("urlToImage", ""),
-            article.get("publishedAt", ""),
-            source=(article.get("source") or {}).get("name", "")
-        )
-        frame.pack(fill="both", expand=True)
 
 tab_frames = {}
 for name in [
     'General', 'Favorites', 'Business', 'Entertainment', 'Health', 'Science','Sports','Technology'
 ]:
     tab = tabs.add(name)
-    search_var = ctk.StringVar()
-    search_entry = ctk.CTkEntry(tab, textvariable=search_var, placeholder_text="Search news...")
+    search_var = ctk.StringVar(value="")
+    search_entry = ctk.CTkEntry(tab, textvariable=search_var, placeholder_text="🔍 Search news...")
     search_entry.pack(pady=10, padx=10, fill="x")
     search_entry.bind("<Return>", lambda event, n=name, sv=search_var: filter_articles(sv.get(), n))
     sf = ctk.CTkScrollableFrame(tab)
