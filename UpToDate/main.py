@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from newsapi import *
 from favorites import *
 
-placeholder_pic = "photo.jpg"
+placeholder_pic = "UpToDate/photo.jpg"
 EXECUTOR = ThreadPoolExecutor(max_workers=6)  # Global executor for all image loads
 
 # Simple in-memory image byte cache to avoid re-downloading duplicates
@@ -117,14 +117,14 @@ class NewsFrame(ctk.CTkFrame):
 app = ctk.CTk()
 app.title("UpToDate")
 app.geometry("800x600")
-img = Image.open("logo.png")
+img = Image.open("UpToDate/logo.png")
 img = img.resize((64, 64), Image.LANCZOS)  # or (32, 32)
 img.save("logo.ico", format="ICO")
 app.iconbitmap("logo.ico")
 
 app.withdraw()
 
-img = Image.open("logo.png")
+img = Image.open("UpToDate/logo.png")
 img = img.resize((64, 64), Image.LANCZOS)  # or (32, 32)
 img.save("logo.ico", format="ICO")
 app.iconbitmap("logo.ico")
@@ -244,7 +244,7 @@ def show_loading_screen():
     ))
     loading.configure(bg="white")
 
-    img = Image.open("logo.png").resize((128, 128), Image.LANCZOS)
+    img = Image.open("UpToDate/logo.png").resize((128, 128), Image.LANCZOS)
     logo_img = ImageTk.PhotoImage(img)
     label = tk.Label(loading, image=logo_img, bg="white")
     label.image = logo_img

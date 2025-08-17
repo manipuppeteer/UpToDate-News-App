@@ -1,1 +1,37 @@
-To run the app, download **interface_v2.py, newsapi.py, favorites.py** and **photo.jpg** into the **same folder**. Then execute **interface_v2.py**
+# UpToDate News App
+
+Welcome to **UpToDate**, your modern news aggregator built with Python!
+
+## Getting Started
+
+### 1. Get Your NewsAPI Key
+- Visit [https://newsapi.org/](https://newsapi.org/) and sign up for a free API key.
+- Open `newsapi.py` in your editor.
+- **Replace** the API key in the first line with your own key:
+  ```python
+  API_KEY = "your_actual_api_key_here"
+  ```
+
+### 2. Download the Required Files
+Place the following files in the **same folder**:
+- `main.py`
+- `newsapi.py`
+- `favorites.py`
+- `photo.jpg`
+- `logo.png` (your app logo)
+
+### 3. Install Dependencies
+Make sure you have the required Python packages installed:
+```bash
+pip install pillow customtkinter beautifulsoup4
+```
+
+### 4. Run the App
+Execute the following command in your terminal:
+```bash
+python main.py
+```
+
+---
+
+Enjoy reading the latest news with
