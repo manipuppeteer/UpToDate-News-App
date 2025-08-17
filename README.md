@@ -13,25 +13,27 @@ Welcome to **UpToDate**, your modern news aggregator built with Python!
   ```
 
 ### 2. Download the Required Files
-Place the following files in the **same folder**:
+Download and place the following files(all in the folder **UpToDate**) in the **same folder**:
 - `main.py`
 - `newsapi.py`
 - `favorites.py`
+- `clean_headlines_moe.py`
 - `photo.jpg`
 - `logo.png` (your app logo)
+- `logo.ico`
 
 ### 3. Install Dependencies
 Make sure you have the required Python packages installed:
 ```bash
-pip install pillow customtkinter beautifulsoup4
+pip install pillow customtkinter beautifulsoup4 requests
 ```
 
 ### 4. Run the App
-Execute the following command in your terminal:
+Execute the following command in your terminal(or run it directly):
 ```bash
 python main.py
 ```
 
 ---
 
-Enjoy reading the latest news with
+Enjoy reading the latest news with **UpToDate**!
