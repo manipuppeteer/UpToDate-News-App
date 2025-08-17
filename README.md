@@ -1,5 +1,6 @@
-# <img src="UpToDate/logo.png" alt="App Logo" width="150" height="100"/> #
-
+<p align="center">
+<img src="UpToDate/logo.png" alt="App Logo" width="150" height="100"/> 
+</p>
 Welcome to **UpToDate**, your modern news aggregator built with Python!
 
 ## Getting Started
