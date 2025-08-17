@@ -17,7 +17,7 @@ Download and place the following files(all in the folder **UpToDate**) in the **
 - `main.py`
 - `newsapi.py`
 - `favorites.py`
-- 'clean_headlines_moe.py'
+- `clean_headlines_moe.py`
 - `photo.jpg`
 - `logo.png` (your app logo)
 - -'logo.ico'
