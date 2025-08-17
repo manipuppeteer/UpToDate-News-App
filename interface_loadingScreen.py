@@ -204,7 +204,7 @@ def show_timer():
         time.sleep(0.1)
 
 def load_categories(tab_frames):
-    for category in ['General']:
+    for category in categories:
         articles_category = get_news_category(category)
         for article in articles_category:
             frame = NewsFrame(
