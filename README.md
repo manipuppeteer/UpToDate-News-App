@@ -1,4 +1,4 @@
-# UpToDate News App
+# <img src="UpToDate/logo.png" alt="App Logo" width="150" height="100"/> #
 
 Welcome to **UpToDate**, your modern news aggregator built with Python!
 
