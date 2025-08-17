@@ -20,7 +20,7 @@ Download and place the following files(all in the folder **UpToDate**) in the **
 - `clean_headlines_moe.py`
 - `photo.jpg`
 - `logo.png` (your app logo)
-- -'logo.ico'
+- `logo.ico`
 
 ### 3. Install Dependencies
 Make sure you have the required Python packages installed:
