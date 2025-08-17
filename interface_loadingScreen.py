@@ -37,24 +37,36 @@ class NewsFrame(ctk.CTkFrame):
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
 
-        self.label= ctk.CTkLabel(self, text=headline, font=("Arial", 16, "bold"),
+        self.label= ctk.CTkLabel(self, text=headline, font=("Roboto", 16, "bold"),
                                  wraplength=420, justify = "left")
         self.label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10,2), sticky="w")
 
         meta = f"{fmt_time(time_iso)}"
         if source: meta += f"   -   {source}"
-        self.age = ctk.CTkLabel(self, text=meta, font=("Arial", 10))
-        self.age.grid(row=1, column=0, columnspan=2, padx=10, pady=(0,8), sticky="w")
+        self.age = ctk.CTkLabel(self, text=meta, font=("Roboto", 12), justify = 'left')
+        self.age.grid(row=1, column=0, padx=10, pady=(0,8), sticky="w")
+
+        # self.source_label = ctk.CTkLabel(
+        #                             self, 
+        #                             text=source, 
+        #                             font=("Roboto", 12, "italic"),
+        #                             wraplength=120,   # forces wrapping instead of clipping
+        #                                    justify = 'left'
+        #                         )
+        # self.source_label.grid(row=1, column=0, padx=(0,10), pady=(0,8), sticky="w")
+
 
         self.img = ctk.CTkImage(light_image=Image.open(placeholder_pic), size=(225, 150))
         self.img_label = ctk.CTkLabel(self, image=self.img, text="")
         self.img_label.grid(row=0, column=2, rowspan=3, padx=10, pady=10, sticky="n")
 
-        self.read_button = ctk.CTkButton(self, text="Read more", command=self.read_more)
+        self.read_button = ctk.CTkButton(self, text="Read more", command=self.read_more,
+                                         width=120)
         self.read_button.grid(row=2, column=0, padx=(10,5), pady=(0,10), sticky="ew")
 
-        self.fav_button= ctk.CTkButton(self, text="Add to Favorites", command=self.add_to_favorites)
-        self.fav_button.grid(row=2, column=1, padx=(10,5), pady=(0,10), sticky="ew" )
+        self.fav_button= ctk.CTkButton(self, text="Add to Favorites", command=self.add_to_favorites,
+                                       width=120)
+        self.fav_button.grid(row=2, column=1, padx=(10,5), pady=(0,10), sticky="ew")
 
         if imgurl and imgurl.strip():
             EXECUTOR.submit(self._load_image_async, imgurl)
@@ -151,23 +163,28 @@ def render_favorites(tab_frames):
     for idx, art in enumerate(favs):
         row = ctk.CTkFrame(frame)
         row.pack(fill="x", padx=12, pady=8)
+        
+        row.grid_columnconfigure(0, weight=2)
+        row.grid_columnconfigure(1, weight=2)
+       # row.grid_columnconfigure(2, weight=1)
 
         title = art.get("title", "(ohne Titel)")
         src = (art.get("source") or "")
         ts = fmt_time(art.get("publishedAt", ""))
 
-        ctk.CTkLabel(row, text=f"{title}\n{ts}   –   {src}", justify="left", wraplength=420)\
-            .grid(row=0, column=0, sticky="ew", padx=(10,6), pady=6)
+        ctk.CTkLabel(row, text=f"{title}\n\n{ts}   –   {src}", justify="left", wraplength=550, 
+                     font = ('Roboto', 16, 'bold'))\
+            .grid(row=0, column=0, rowspan=2, columnspan=2, sticky="w", padx=(10,6), pady=6)
 
         def open_url(u=art.get("url", "")):
             if u: webbrowser.open(u)
 
-        ctk.CTkButton(row, text="Öffnen", command=open_url).grid(row=0, column=1, 
-                                                                 padx=(6,6), pady=6,
-                                                                  sticky = 'ew')
-        ctk.CTkButton(row, text="Löschen", fg_color="#aa3333",
+        ctk.CTkButton(row, text="Open", command=open_url).grid(row=0, column=1, 
+                                                                 padx=(32,6), pady=6,
+                                                                  sticky = 'e')
+        ctk.CTkButton(row, text="Delete", fg_color="#aa3333",
                       command=lambda i=idx: (remove_favs(i), render_favorites(tab_frames)))\
-            .grid(row=0, column=2, padx=(6,), pady=6, sticky='ew')
+            .grid(row=1, column=1, columnspan=1,padx=(6,), pady=6, sticky='e')
 
 
 
@@ -187,7 +204,7 @@ def show_timer():
         time.sleep(0.1)
 
 def load_categories(tab_frames):
-    for category in categories:
+    for category in ['General']:
         articles_category = get_news_category(category)
         for article in articles_category:
             frame = NewsFrame(
@@ -233,7 +250,7 @@ def show_loading_screen():
     label.image = logo_img
     label.pack(expand=True)
 
-    tk.Label(loading, text="Loading...", font=("Arial", 16), bg="white").pack(pady=10)
+    tk.Label(loading, text="Your news is coming....", font=("Arial", 16), bg="white").pack(pady=10)
 
     def close_loading():
         loading.destroy()
