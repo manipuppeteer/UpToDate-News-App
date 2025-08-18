@@ -1,9 +1,10 @@
 import requests
-API_KEY = 'ecb9e858a7fb47a6aa7b33d668c1ba6e'
+from dotenv import load_dotenv
+import os
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 def get_news():
-
-   
-    # Set up the endpoint and parameters
+   # Set up the endpoint and parameters
     url = 'https://newsapi.org/v2/top-headlines'
     params = {
              # You can change to 'de' for Germany, etc.
