@@ -2,7 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv('API_KEY') ####Replace this line with your actual API key
 def get_news():
    # Set up the endpoint and parameters
     url = 'https://newsapi.org/v2/top-headlines'
