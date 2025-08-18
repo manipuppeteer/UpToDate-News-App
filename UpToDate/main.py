@@ -35,7 +35,7 @@ class NewsFrame(ctk.CTkFrame):
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
+        self.columnconfigure(2, weight=2)
 
         self.label= ctk.CTkLabel(self, text=headline, font=("Roboto", 16, "bold"),
                                  wraplength=420, justify = "left")
@@ -44,7 +44,7 @@ class NewsFrame(ctk.CTkFrame):
         meta = f"{fmt_time(time_iso)}"
         if source: meta += f"   -   {source}"
         self.age = ctk.CTkLabel(self, text=meta, font=("Roboto", 12), justify = 'left')
-        self.age.grid(row=1, column=0, padx=10, pady=(0,8), sticky="w")
+        self.age.grid(row=1, column=0,columnspan=2, padx=10, pady=(0,8), sticky="w")
 
         # self.source_label = ctk.CTkLabel(
         #                             self, 
@@ -62,11 +62,13 @@ class NewsFrame(ctk.CTkFrame):
 
         self.read_button = ctk.CTkButton(self, text="Read more", command=self.read_more,
                                          width=120)
-        self.read_button.grid(row=2, column=0, padx=(10,5), pady=(0,10), sticky="ew")
+        self.read_button.grid(row=2, column=0, padx=(10,5), pady=(0,10), sticky="ew",
+                              )
 
         self.fav_button= ctk.CTkButton(self, text="Add to Favorites", command=self.add_to_favorites,
                                        width=120)
-        self.fav_button.grid(row=2, column=1, padx=(10,5), pady=(0,10), sticky="ew")
+        self.fav_button.grid(row=2, column=1, padx=(10,5), pady=(0,10), sticky="ew",
+                             )
 
         if imgurl and imgurl.strip():
             EXECUTOR.submit(self._load_image_async, imgurl)
@@ -204,15 +206,15 @@ def show_timer():
         time.sleep(0.1)
 
 def load_categories(tab_frames):
-    for category in categories:
+    for category in ['General']:
         articles_category = get_news_category(category)
         for article in articles_category:
             frame = NewsFrame(
                 tab_frames[f'{category}'],
-                change_title(article.get("title", "(ohne Titel)")),
+                clean_headline(article.get("title", "(ohne Titel)")),
                 article.get("url", ""),
                 article.get("urlToImage", ""),
-                article.get("publishedAt", ""),
+                fmt_time(article.get("publishedAt", "")),
                 source=(article.get("source") or {}).get("name", ""),
                 tab_frames=tab_frames
             )
@@ -225,10 +227,10 @@ def filter_articles(word, category, tab_frames):
     for article in articles:
         frame = NewsFrame(
             tab_frames[f'{category}'],
-            change_title(article.get("title", "(ohne Titel)")),
+            clean_headline(article.get("title", "(ohne Titel)")),
             article.get("url", ""),
             article.get("urlToImage", ""),
-            article.get("publishedAt", ""),
+            fmt_time(article.get("publishedAt", "")),
             source=(article.get("source") or {}).get("name", ""),
             tab_frames=tab_frames
         )

@@ -6,7 +6,8 @@ def fmt_time(iso_str: str) -> str:
     try:
         dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00")).astimezone(ZoneInfo("Europe/Berlin"))
         return dt.strftime("%d.%m.%Y %H:%M")
-    except Exception:
+    except Exception as e:
+        print(e)
         return iso_str or ""
 
 def _favorites_path():
@@ -52,3 +53,4 @@ def remove_favs(index: int) -> bool:
 def list_favs() -> list:
     return load_favorites()
 
+print(fmt_time('2025-08-10T08:28:03Z'))

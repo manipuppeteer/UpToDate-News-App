@@ -59,3 +59,16 @@ def search_news(word, category):
         articles = data['articles']
         return articles
     
+def clean_headline(headline):
+        headline = headline.strip()
+        headline = ' '.join([word.strip() for word in headline.split()])
+        #  headline = headline.replace(headline[0], '')                                # Replace multiple spaces with a single space
+        for x in '$%&123456789':
+            headline = headline.removeprefix(x)
+            headline = headline.removesuffix(x)
+
+        headline_x = headline.rsplit()
+        headline_xx = [wort.capitalize() for wort in headline_x]
+        headline = ' '.join(headline_xx)
+
+        return headline
