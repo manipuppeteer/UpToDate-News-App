@@ -27,7 +27,7 @@ Download and place the following files(all in the folder **UpToDate**) in the **
 ### 3. Install Dependencies
 Make sure you have the required Python packages installed:
 ```bash
-pip install pillow customtkinter beautifulsoup4 requests
+pip install pillow customtkinter beautifulsoup4 requests tzdata
 ```
 
 ### 4. Run the App
