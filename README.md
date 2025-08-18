@@ -15,14 +15,7 @@ Welcome to **UpToDate**, your modern news aggregator built with Python!
   ```
 
 ### 2. Download the Required Files
-Download and place the following files(all in the folder **UpToDate**) in the **same folder**:
-- `main.py`
-- `newsapi.py`
-- `favorites.py`
-- `clean_headlines_moe.py`
-- `photo.jpg`
-- `logo.png` (your app logo)
-- `logo.ico`
+Download **UpToDate NewsApp.zip**
 
 ### 3. Install Dependencies
 Make sure you have the required Python packages installed:
