@@ -9,7 +9,7 @@ Welcome to **UpToDate**, your modern news aggregator built with Python!
 ### 1. Get Your NewsAPI Key
 - Visit [https://newsapi.org/](https://newsapi.org/) and sign up for a free API key.
 - Open `newsapi.py` in your editor.
-- **Replace** the API key in the first line with your own key:
+- **Replace** the API key in the fifth line with your own key:
   ```python
   API_KEY = "your_actual_api_key_here"
   ```
