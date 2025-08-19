@@ -35,7 +35,7 @@ class NewsFrame(ctk.CTkFrame):
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=2)
+        self.columnconfigure(2, weight=1, minsize=225)
 
         self.label= ctk.CTkLabel(self, text=headline, font=("Roboto", 16, "bold"),
                                  wraplength=420, justify = "left")
@@ -58,7 +58,7 @@ class NewsFrame(ctk.CTkFrame):
 
         self.img = ctk.CTkImage(light_image=Image.open(placeholder_pic), size=(225, 150))
         self.img_label = ctk.CTkLabel(self, image=self.img, text="")
-        self.img_label.grid(row=0, column=2, rowspan=3, padx=10, pady=10, sticky="n")
+        self.img_label.grid(row=0, column=2, rowspan=2, padx=20, pady=10, sticky="ns")
 
         self.read_button = ctk.CTkButton(self, text="Read more", command=self.read_more,
                                          width=120)
@@ -187,11 +187,6 @@ def render_favorites(tab_frames):
         ctk.CTkButton(row, text="Delete", fg_color="#aa3333",
                       command=lambda i=idx: (remove_favs(i), render_favorites(tab_frames)))\
             .grid(row=1, column=1, columnspan=1,padx=(6,), pady=6, sticky='e')
-
-
-
-def change_title(title:str):
-    return ''.join(title.split('-')[:-1])
 
 
 categories = ['General', 'Business', 'Entertainment', 'Health', 'Science','Sports','Technology']

@@ -63,12 +63,21 @@ def clean_headline(headline):
         headline = headline.strip()
         headline = ' '.join([word.strip() for word in headline.split()])
         #  headline = headline.replace(headline[0], '')                                # Replace multiple spaces with a single space
-        for x in '$%&123456789':
+        for x in r'&:\/*@':
             headline = headline.removeprefix(x)
             headline = headline.removesuffix(x)
 
-        headline_x = headline.rsplit()
-        headline_xx = [wort.capitalize() for wort in headline_x]
+        words = headline.rsplit()
+       # words = [word if word[0].isalpha() else word[1:] for word in headline_x]
+      #  print(words)
+        headline_xx = [wort.strip() if wort.isupper() else wort.capitalize() for wort in words]
         headline = ' '.join(headline_xx)
-
+       # print(headline)
+        headline = ' '.join(headline.split('-')[:-1])
         return headline
+
+def main():
+    print(clean_headline("'hello' World USA! - BBC  "))  # Example usage
+
+if __name__ == "__main__":
+    main()
