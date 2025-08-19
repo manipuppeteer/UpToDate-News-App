@@ -15,7 +15,7 @@ Welcome to **UpToDate**, your modern news aggregator built with Python!
   ```
 
 ### 2. Download the Required Files
-Download **UpToDate NewsApp.zip**
+Download **UpToDate NewsApp.zip** or clone this repository in your system
 
 ### 3. Install Dependencies
 Make sure you have the required Python packages installed:
