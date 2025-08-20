@@ -1,8 +1,6 @@
-# To do - create a search bar
-# To do - ensure that if one news item is in general, it doesnt appear in the rest of the columns
 import customtkinter as ctk
 import tkinter as tk
-from PIL import Image
+from PIL import Image, ImageTk
 import webbrowser, requests, json, os, time
 from io import BytesIO
 from datetime import datetime
@@ -12,6 +10,7 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from newsapi import *
 from favorites import *
+from interface import *
 
 placeholder_pic = "UpToDate/photo.jpg"
 EXECUTOR = ThreadPoolExecutor(max_workers=6)  # Global executor for all image loads
@@ -21,7 +20,23 @@ _IMAGE_CACHE = {}
 
 
 class NewsFrame(ctk.CTkFrame):
+    """
+    A custom frame widget that displays a single news article with title, metadata,
+    image, and action buttons (Read more, Add to Favorites).
+    """
     def __init__(self, master, headline, url, imgurl, time_iso, source="", tab_frames=None):
+        """
+        Initialize a news article frame.
+        
+        Args:
+            master: The parent widget
+            headline (str): The article title/headline
+            url (str): The article URL
+            imgurl (str): URL of the article's image
+            time_iso (str): Publication time in ISO format
+            source (str): Name of the news source
+            tab_frames (dict): Dictionary of tab frames for updating favorites
+        """
         super().__init__(master)
         self.url = url
         self.tab_frames = tab_frames
@@ -74,6 +89,12 @@ class NewsFrame(ctk.CTkFrame):
             EXECUTOR.submit(self._load_image_async, imgurl)
 
     def _load_image_async(self, imgurl: str):
+        """
+        Load an image asynchronously from a URL and cache it.
+        
+        Args:
+            imgurl (str): URL of the image to load
+        """
         try:
             if imgurl in _IMAGE_CACHE:
                 img_bytes = _IMAGE_CACHE[imgurl]
@@ -90,6 +111,12 @@ class NewsFrame(ctk.CTkFrame):
             print("Image load failed:", e)
 
     def _create_image_on_main(self, img_bytes):
+        """
+        Create and display the image on the main thread from downloaded bytes.
+        
+        Args:
+            img_bytes (bytes): Image data in bytes format
+        """
         if not self.winfo_exists():
             return  # widget destroyed
         try:
@@ -102,10 +129,17 @@ class NewsFrame(ctk.CTkFrame):
             print("Image create failed:", e)
 
     def read_more(self):
+        """
+        Open the article URL in the default web browser.
+        """
         if self.url:
             webbrowser.open(self.url)
 
     def add_to_favorites(self):
+        """
+        Add the current article to favorites and update the UI.
+        Disables the button and updates the favorites tab.
+        """
         try:
             add_fav(self.article_dict)
             self.fav_button.configure(text="Saved ✓", state="disabled")
@@ -130,10 +164,25 @@ img = Image.open("UpToDate/logo.png")
 img = img.resize((64, 64), Image.LANCZOS)  # or (32, 32)
 img.save("logo.ico", format="ICO")
 app.iconbitmap("logo.ico")
-#app.logo_img = logo_img
 
-
+import customtkinter as ctk
+import tkinter as tk
+from PIL import Image, ImageTk
+import webbrowser, requests, json, os, time
+from io import BytesIO
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from pathlib import Path
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
 def create_tabs():
+    """
+    Create the main tab view with categories and search functionality.
+    Each tab contains a search bar and a scrollable frame for news articles.
+    
+    Returns:
+        dict: Dictionary mapping tab names to their scrollable frames
+    """
     tabs = ctk.CTkTabview(app)
     tabs.pack(fill="both", expand=True)
     tab_frames = {}
@@ -153,6 +202,13 @@ def create_tabs():
 
 
 def render_favorites(tab_frames):
+    """
+    Display all favorite articles in the Favorites tab.
+    Clears existing content and shows each favorite with Open/Delete buttons.
+    
+    Args:
+        tab_frames (dict): Dictionary of tab frames containing the Favorites frame
+    """
     frame = tab_frames["Favorites"]
     for w in frame.winfo_children():
         w.destroy()
@@ -194,14 +250,16 @@ categories = ['General', 'Business', 'Entertainment', 'Health', 'Science','Sport
 start_time = time.time()
 running = True
 
-def show_timer():
-    while running:
-        elapsed = time.time() - start_time
-        print(f"\r⏱ {elapsed:.2f} seconds", end="")
-        time.sleep(0.1)
 
 def load_categories(tab_frames):
-    for category in ['General']:
+    """
+    Load and display news articles for all categories.
+    Fetches articles from the API and creates NewsFrame widgets for each.
+    
+    Args:
+        tab_frames (dict): Dictionary of tab frames to populate with articles
+    """
+    for category in categories:
         articles_category = get_news_category(category)
         for article in articles_category:
             frame = NewsFrame(
@@ -214,7 +272,18 @@ def load_categories(tab_frames):
                 tab_frames=tab_frames
             )
             frame.pack(fill="both", expand=True)
+
 def filter_articles(word, category, tab_frames):
+    """
+    Filter and display articles in a specific category based on a search word.
+    Clears the category tab and shows only matching articles.
+    
+    Args:
+        word (str): Search term to filter articles
+        category (str): Category name to search within
+        tab_frames (dict): Dictionary of tab frames
+    """
+
     articles = search_news(word, category)
     # Erase all widgets from a frame
     for widget in tab_frames[f'{category}'].winfo_children():
@@ -230,9 +299,14 @@ def filter_articles(word, category, tab_frames):
             tab_frames=tab_frames
         )
         frame.pack(fill="both", expand=True)
-#app.after(50, load_and_close)
-from PIL import ImageTk
+
 def show_loading_screen():
+    """
+    Display a loading screen with the app logo while news content is being loaded.
+    Shows a centered window with logo and loading message, then loads all content
+    and shows the main application window.
+    """
+    
     loading = tk.Toplevel(app)
     loading.overrideredirect(True)
     loading.geometry("300x300+{}+{}".format(
@@ -260,7 +334,7 @@ def show_loading_screen():
         close_loading()
 
     app.after(500, load_and_close)
-app.after(50,show_loading_screen)
-# Call this before mainloop
 
+
+app.after(50,show_loading_screen) # Call this before mainloop
 app.mainloop()

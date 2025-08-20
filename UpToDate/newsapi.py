@@ -3,36 +3,22 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 API_KEY = os.getenv('API_KEY') ####Replace this line with your actual API key
-def get_news():
-   # Set up the endpoint and parameters
-    url = 'https://newsapi.org/v2/top-headlines'
-    params = {
-             # You can change to 'de' for Germany, etc.
-        'category': 'general',
-        'apiKey': API_KEY
-    }
-
-    # Make the request
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        articles = data['articles']
-        return articles
-    #     print("📰 Top Technology Headlines:\n")
-    #     for i, article in enumerate(articles[:5], 1):  # show top 5
-    #         print(f"{i}. {article['title']}")
-    #         print(f"   Source: {article['source']['name']}")
-    #         print(f"   URL: {article['url']}\n")
-    # else:
-    #     print("Failed to fetch news:", response.status_code)
+url = 'https://newsapi.org/v2/top-headlines'
 
 def get_news_category(category:str):
+    """
+    Fetch top headlines from NewsAPI for a specific category.
+    
+    Args:
+        category (str): The news category to fetch (e.g., 'business', 'sports', 'technology')
+    
+    Returns:
+        list: A list of article dictionaries containing news data, or None if request fails
+    """
    
     # Set up the endpoint and parameters
-    url = 'https://newsapi.org/v2/top-headlines'
-    params = {
-              # You can change to 'de' for Germany, etc.
-        'category': category,
+    
+    params = {'category': category,
         'apiKey': API_KEY
     }
 
@@ -44,10 +30,18 @@ def get_news_category(category:str):
         return articles
 
 def search_news(word, category):
-    url = 'https://newsapi.org/v2/top-headlines'
-    params = {
-              # You can change to 'de' for Germany, etc.
-        'category': category,
+    """
+    Search for news articles within a specific category using a search query.
+    
+    Args:
+        word (str): The search term/query to look for in articles
+        category (str): The news category to search within
+    
+    Returns:
+        list: A list of article dictionaries matching the search criteria, or None if request fails
+    """
+    
+    params = {'category': category,
         'apiKey': API_KEY,
         'q': word  # Search query
     }
@@ -60,21 +54,34 @@ def search_news(word, category):
         return articles
     
 def clean_headline(headline):
-        headline = headline.strip()
-        headline = ' '.join([word.strip() for word in headline.split()])
-        #  headline = headline.replace(headline[0], '')                                # Replace multiple spaces with a single space
-        for x in r'&:\/*@':
-            headline = headline.removeprefix(x)
-            headline = headline.removesuffix(x)
+    """
+    Clean and format a news headline for better display.
+    
+    Removes leading/trailing whitespace, normalizes spacing, strips unwanted characters,
+    capitalizes words (except those already in uppercase), and removes trailing source information.
+    
+    Args:
+        headline (str): Raw headline text to be cleaned
+    
+    Returns:
+        str: Cleaned and formatted headline text
+    
+    Examples:
+        >>> clean_headline("'hello' World USA! - BBC  ")
+        "'Hello' World USA!"
+    """
+    headline = headline.strip()
+    headline = ' '.join([word.strip() for word in headline.split()])  # Replace multiple spaces with a single space
+                                    
+    for x in r'&:\/*@':
+        headline = headline.removeprefix(x)
+        headline = headline.removesuffix(x)
 
-        words = headline.rsplit()
-       # words = [word if word[0].isalpha() else word[1:] for word in headline_x]
-      #  print(words)
-        headline_xx = [wort.strip() if wort.isupper() else wort.capitalize() for wort in words]
-        headline = ' '.join(headline_xx)
-       # print(headline)
-        headline = ' '.join(headline.split('-')[:-1])
-        return headline
+    words = headline.rsplit()
+    headline_xx = [wort.strip() if wort.isupper() else wort.capitalize() for wort in words] #capitalize every word, but only if it is not already in uppercase
+    headline = ' '.join(headline_xx)
+    headline = ' '.join(headline.split('-')[:-1])  # remove source name at the end
+    return headline
 
 def main():
     print(clean_headline("'hello' World USA! - BBC  "))  # Example usage
